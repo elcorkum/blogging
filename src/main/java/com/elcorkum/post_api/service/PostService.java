@@ -21,13 +21,17 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Post getPost(Long postId){
+    public Post getPostById(Long postId){
         verifyPost(postId);
         return postRepository.findById(postId).orElse(null);
     }
 
-    public Iterable<Post> getAllPosts(Long userId){
+    public Iterable<Post> getAllPostsByAccount(Long userId){
         return postRepository.getAllPostsByAccount(userId);
+    }
+
+    public Iterable<Post> getAllPosts(){
+        return postRepository.findAll();
     }
 
     public void deletePost(Long postId){

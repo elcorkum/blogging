@@ -17,9 +17,8 @@ public class Post {
     @NotNull
     private String content;
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "USER_ID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @NotNull
     private User user;
 
     public Post() {

@@ -34,8 +34,8 @@ public class PostController {
     }
 
     @GetMapping("/users/{userId}/posts/{postId}")
-    public ResponseEntity<?> getPostById(@PathVariable Long postId){
-        Post post = postService.getPost(postId);
+    public ResponseEntity<?> getExistingPostById(@PathVariable Long postId){
+        Post post = postService.getPostById(postId);
         if(post == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         logger.info("PostController getPostById() output {}", post);
@@ -43,12 +43,21 @@ public class PostController {
     }
 
     @GetMapping("/posts/{userId}")
-    public ResponseEntity<?> getAllExistingPosts(@PathVariable Long userId){
-        Iterable<Post> posts = postService.getAllPosts(userId);
+    public ResponseEntity<?> getAllExistingPostsByAccount(@PathVariable Long userId){
+        Iterable<Post> posts = postService.getAllPostsByAccount(userId);
         if (!posts.iterator().hasNext())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("PostController getAllExistingPosts() output {}", posts);
+        logger.info("PostController getExistingPostsByAccount() output {}", posts);
         return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/posts")
+    public ResponseEntity<?> getAllExistingPosts(){
+        Iterable<Post> allPosts = postService.getAllPosts();
+        if (!allPosts.iterator().hasNext())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        logger.info("PostController getAllExistingPosts() output {}", allPosts);
+        return new ResponseEntity<>(allPosts, HttpStatus.OK);
     }
 
     @PutMapping("/users/{userId}/posts/{postId}")
@@ -63,7 +72,7 @@ public class PostController {
     @DeleteMapping("/users/{userId}/posts/{postId}")
     public ResponseEntity<?> deleteExistingPost(@PathVariable Long postId){
         postService.deletePost(postId);
-        Post post = postService.getPost(postId);
+        Post post = postService.getPostById(postId);
         if(post == null)
 
             return ResponseHandler.responseBuilder("Successfully deleted post!", HttpStatus.NO_CONTENT);
