@@ -2,6 +2,7 @@ package com.elcorkum.post_api.entity;
 
 import com.elcorkum.post_api.entity.enums.Gender;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 
 @Entity
@@ -10,6 +11,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     private String username;
 
     @Enumerated(EnumType.STRING)

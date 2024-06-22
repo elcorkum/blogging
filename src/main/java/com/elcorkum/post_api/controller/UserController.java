@@ -21,7 +21,7 @@ public class UserController {
      * delete user
      */
 
-    private UserService userService;
+    private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -32,16 +32,20 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createNewUser(@RequestBody User user){
         User newUser = userService.createUser(user);
-        if(user == null)
+        if(user == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }else
+            logger.info("UserController createNewUser() output {}", newUser);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getExistingUser(@PathVariable Long userId){
         User user = userService.getUser(userId);
-        if (user == null)
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }else
+            logger.info("UserController getExistingUser() output {}", user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -50,6 +54,7 @@ public class UserController {
         Iterable<User> allUsers = userService.getUsers();
         if(!allUsers.iterator().hasNext())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        logger.info("UserController getAllUsers() response {}", allUsers);
         return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
@@ -58,6 +63,7 @@ public class UserController {
         User updatedUser = userService.updateUser(userId, user);
         if(updatedUser == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        logger.info("UserController updateExistingUser() response {}", updatedUser);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
@@ -67,6 +73,7 @@ public class UserController {
         User user = userService.getUser(userId);
         if (user == null)
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        logger.info("UserController deleteExistingUser() response {}", user);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
