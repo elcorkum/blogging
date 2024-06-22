@@ -1,6 +1,5 @@
 package com.elcorkum.post_api.controller;
 
-import com.elcorkum.post_api.entity.Post;
 import com.elcorkum.post_api.entity.PostComment;
 import com.elcorkum.post_api.response.ResponseHandler;
 import com.elcorkum.post_api.service.PostCommentService;
@@ -26,38 +25,55 @@ public class PostCommentController {
 
     @PostMapping("posts/{postId}/postcomments")
     public ResponseEntity<?> createNewPost (@RequestBody PostComment postComment){
-        PostComment newComment = postCommentService.createPostComment(postComment);
-        if(newComment == null)
+        try {
+            PostComment newComment = postCommentService.createPostComment(postComment);
+            if(newComment != null)
+                logger.info("PostCommentController createNewPost() success {}", newComment);
+            return ResponseHandler.responseBuilder("Successfully saved comment", HttpStatus.CREATED, newComment);
+        } catch (Exception e) {
+            logger.info("PostCommentController createNewPost() failed request");
             return ResponseHandler.responseBuilder("Unable to save comment", HttpStatus.NOT_FOUND);
-        logger.info("PostCommentController createNewPost() {}", newComment);
-        return ResponseHandler.responseBuilder("Successfully saved comment", HttpStatus.CREATED, newComment);
+        }
     }
 
     @GetMapping("/postcomments/{postCommentId}")
     public ResponseEntity<?> getExistingPostCommentById(@PathVariable Long postCommentId){
-        PostComment postComment = postCommentService.getPostCommentById(postCommentId);
-        if(postComment == null)
+        try {
+            PostComment postComment = postCommentService.getPostCommentById(postCommentId);
+            if(postComment != null)
+                logger.info("PostCommentController getExistingPostCommentById() success {}", postComment);
+            return ResponseHandler.responseBuilder("Successfully retrieved comment", HttpStatus.OK, postComment);
+        } catch (Exception e) {
+            logger.info("PostCommentController getExistingPostCommentById() failed request");
             return ResponseHandler.responseBuilder("Comment not found", HttpStatus.NOT_FOUND);
-        logger.info("PostCommentController getExistingPostCommentById() {}", postComment);
-        return ResponseHandler.responseBuilder("Successfully retrieved comment", HttpStatus.OK, postComment);
+        }
     }
 
     @GetMapping("/postcomments")
     public ResponseEntity<?> getAllExistingPostComments(){
-        Iterable<PostComment> allComments = postCommentService.getAllPostComments();
-        if(!allComments.iterator().hasNext())
+        try {
+            Iterable<PostComment> allComments = postCommentService.getAllPostComments();
+            if(allComments.iterator().hasNext())
+                logger.info("PostController getAllExistingPostComments()  SUCCESS! {}", allComments);
+            return ResponseHandler.responseBuilder("Successfully retrieved comments.", HttpStatus.OK, allComments);
+        } catch (Exception e) {
+            logger.info("PostController getAllExistingPostComments()  failed request");
             return ResponseHandler.responseBuilder("Comments not found", HttpStatus.NOT_FOUND);
-        logger.info("PostController getAllExistingPostComments() {}", allComments);
-        return ResponseHandler.responseBuilder("Successfully retrieved comments.", HttpStatus.OK, allComments);
+
+        }
     }
 
     @GetMapping("posts/{postId}/postcomments")
     public ResponseEntity<?> getAllPostCommentsByPost(@PathVariable Long postId){
-        Iterable<PostComment> comments = postCommentService.getPostCommentsByPost(postId);
-        if(!comments.iterator().hasNext())
+        try {
+            Iterable<PostComment> comments = postCommentService.getPostCommentsByPost(postId);
+            if(comments.iterator().hasNext())
+                logger.info("PostController getAllPostCommentsByPost() SUCCESS! {}", comments);
+            return ResponseHandler.responseBuilder("Successfully retrieved comments.", HttpStatus.OK, comments);
+        } catch (Exception e) {
+            logger.info("PostController getAllPostCommentsByPost() failed request");
             return ResponseHandler.responseBuilder("Comments not found", HttpStatus.NOT_FOUND);
-        logger.info("PostController getAllPostCommentsByPost() {}", comments);
-        return ResponseHandler.responseBuilder("Successfully retrieved comments.", HttpStatus.OK, comments);
+        }
     }
 
     @DeleteMapping("postcomments/{postCommentId}")
@@ -71,4 +87,18 @@ public class PostCommentController {
             return ResponseHandler.responseBuilder("Unable to delete", HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("postcomments/{postCommentId}")
+    public ResponseEntity<?> updateExistingPostComment(@PathVariable Long postCommentId, @RequestBody PostComment postComment){
+        try {
+            PostComment updatedComment = postCommentService.updatePostComment(postCommentId, postComment);
+            if(updatedComment != null)
+                logger.info("PostCommentController updateExistingPostComment() update successful {}", updatedComment);
+            return ResponseHandler.responseBuilder("Update successful", HttpStatus.ACCEPTED, updatedComment);
+        } catch (Exception e) {
+            logger.info("PostCommentController updateExistingPostComment() failed update");
+            return ResponseHandler.responseBuilder("Comment not found", HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

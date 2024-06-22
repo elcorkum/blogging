@@ -37,6 +37,17 @@ public class PostCommentService {
         postCommentRepository.deleteById(postCommentId);
     }
 
+    public PostComment updatePostComment(Long postCommentId, PostComment postComment){
+        verifyPostComment(postCommentId);
+        PostComment updatedComment = null;
+        for(PostComment comment :postCommentRepository.findAll()){
+            if(comment.getId().equals(postCommentId)){
+                updatedComment = postCommentRepository.save(postComment);
+            }
+        }
+        return updatedComment;
+    }
+
     protected void verifyPostComment(Long postCommentId){
         PostComment postComment = postCommentRepository.findById(postCommentId).orElse(null);
         if(postComment == null)

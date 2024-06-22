@@ -2,6 +2,7 @@ package com.elcorkum.post_api.controller;
 
 
 import com.elcorkum.post_api.entity.User;
+import com.elcorkum.post_api.response.ResponseHandler;
 import com.elcorkum.post_api.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    /**
-     * create a user
-     * get user by id
-     * get all users
-     * update user
-     * delete user
-     */
 
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -30,51 +24,67 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createNewUser(@RequestBody User user){
-        User newUser = userService.createUser(user);
-        if(user == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }else
-            logger.info("UserController createNewUser() output {}", newUser);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    public ResponseEntity<Object> createNewUser(@RequestBody User user){
+        try {
+            User newUser = userService.createUser(user);
+            if(user != null)
+                logger.info("UserController createNewUser() success {}", newUser);
+            return ResponseHandler.responseBuilder("User saved successfully", HttpStatus.CREATED, newUser);
+        } catch (Exception e) {
+            logger.info("UserController createNewUser() failed request");
+            return ResponseHandler.responseBuilder("User not saved", HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getExistingUser(@PathVariable Long userId){
-        User user = userService.getUser(userId);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }else
-            logger.info("UserController getExistingUser() output {}", user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        try {
+            User user = userService.getUser(userId);
+            if (user != null)
+                logger.info("UserController getExistingUser() SUCCESS! {}", user);
+            return ResponseHandler.responseBuilder("User retrieved successfully", HttpStatus.OK, user);
+        } catch (Exception e) {
+            logger.info("UserController getExistingUser() failed request");
+            return ResponseHandler.responseBuilder("User not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping
     public ResponseEntity<?> getAllUsers(){
-        Iterable<User> allUsers = userService.getUsers();
-        if(!allUsers.iterator().hasNext())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("UserController getAllUsers() response {}", allUsers);
-        return new ResponseEntity<>(allUsers, HttpStatus.OK);
+        try {
+            Iterable<User> allUsers = userService.getUsers();
+            if(allUsers.iterator().hasNext())
+                logger.info("UserController getAllUsers() SUCCESS! {}", allUsers);
+            return ResponseHandler.responseBuilder("Users retrieved successfully", HttpStatus.OK, allUsers);
+        } catch (Exception e) {
+            logger.info("UserController getAllUsers() failed request");
+            return ResponseHandler.responseBuilder("Users not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateExistingUser(@PathVariable Long userId, @RequestBody User user){
-        User updatedUser = userService.updateUser(userId, user);
-        if(updatedUser == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("UserController updateExistingUser() response {}", updatedUser);
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        try {
+            User updatedUser = userService.updateUser(userId, user);
+            if(updatedUser != null)
+                logger.info("UserController updateExistingUser() SUCCESS! {}", updatedUser);
+            return ResponseHandler.responseBuilder("User update successful", HttpStatus.ACCEPTED, updatedUser);
+        } catch (Exception e) {
+            logger.info("UserController updateExistingUser() failed request");
+            return ResponseHandler.responseBuilder("User not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteExistingUser(@PathVariable Long userId){
-        userService.deleteUser(userId);
-        User user = userService.getUser(userId);
-        if (user == null)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        logger.info("UserController deleteExistingUser() response {}", user);
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.deleteUser(userId);
+            logger.info("UserController deleteExistingUser() successful delete");
+            return ResponseHandler.responseBuilder("User deleted successfully", HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            logger.info("UserController deleteExistingUser() failed delete");
+            return ResponseHandler.responseBuilder("User not found", HttpStatus.NOT_FOUND);
+        }
     }
 
 }

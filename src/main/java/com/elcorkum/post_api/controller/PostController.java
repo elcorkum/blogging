@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@RequestMapping("/users/{userId}/posts")
 public class PostController {
 
     private final PostService postService;
@@ -26,58 +25,80 @@ public class PostController {
 
     @PostMapping("/users/{userId}/posts")
     public ResponseEntity<?> createNewPost(@RequestBody Post post){
-        Post newPost = postService.createPost(post);
-        if(newPost == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        logger.info("PostController createNewPost() output {}", newPost);
-        return new ResponseEntity<>(newPost, HttpStatus.CREATED);
+        try {
+            Post newPost = postService.createPost(post);
+            if(newPost != null)
+                logger.info("PostController createNewPost() success! {}", newPost);
+            return ResponseHandler.responseBuilder("Post saved successfully", HttpStatus.OK, newPost);
+        } catch (Exception e) {
+            logger.info("PostController createNewPost() failed request");
+            return ResponseHandler.responseBuilder("Post not saved", HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/users/{userId}/posts/{postId}")
     public ResponseEntity<?> getExistingPostById(@PathVariable Long postId){
-        Post post = postService.getPostById(postId);
-        if(post == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("PostController getPostById() output {}", post);
-        return new ResponseEntity<>(post, HttpStatus.OK);
+        try {
+            Post post = postService.getPostById(postId);
+            if(post != null)
+                logger.info("PostController getPostById() success! {}", post);
+            return ResponseHandler.responseBuilder("Post retrieved successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("PostController getPostById() failed request");
+            return ResponseHandler.responseBuilder("Post not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/posts/{userId}")
     public ResponseEntity<?> getAllExistingPostsByAccount(@PathVariable Long userId){
-        Iterable<Post> posts = postService.getAllPostsByAccount(userId);
-        if (!posts.iterator().hasNext())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("PostController getExistingPostsByAccount() output {}", posts);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+        try {
+            Iterable<Post> posts = postService.getAllPostsByAccount(userId);
+            if (posts.iterator().hasNext())
+                logger.info("PostController getExistingPostsByAccount() success {}", posts);
+            return ResponseHandler.responseBuilder("Posts retrieved successfully", HttpStatus.OK, posts);
+        } catch (Exception e) {
+            logger.info("PostController getExistingPostsByAccount() failed request");
+            return ResponseHandler.responseBuilder("Posts not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/posts")
     public ResponseEntity<?> getAllExistingPosts(){
-        Iterable<Post> allPosts = postService.getAllPosts();
-        if (!allPosts.iterator().hasNext())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        logger.info("PostController getAllExistingPosts() output {}", allPosts);
-        return new ResponseEntity<>(allPosts, HttpStatus.OK);
+        try {
+            Iterable<Post> allPosts = postService.getAllPosts();
+            if (allPosts.iterator().hasNext())
+                logger.info("PostController getAllExistingPosts() success! {}", allPosts);
+            return ResponseHandler.responseBuilder("Posts retrieved successfully", HttpStatus.OK, allPosts);
+        } catch (Exception e) {
+            logger.info("PostController getAllExistingPosts() failed request");
+            return ResponseHandler.responseBuilder("Posts not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/users/{userId}/posts/{postId}")
     public ResponseEntity<?> updateExistingPost(@PathVariable Long postId, @RequestBody Post post){
-        Post updatedPost = postService.updatePost(postId, post);
-        if(post == null)
-            return ResponseHandler.responseBuilder("Failed to update post", HttpStatus.NOT_FOUND);
-        logger.info("PostController updateExistingPost() output {}", updatedPost);
-        return ResponseHandler.responseBuilder("Updated successfully", HttpStatus.OK, updatedPost);
+        try {
+            Post updatedPost = postService.updatePost(postId, post);
+            if(post != null)
+                logger.info("PostController updateExistingPost() success! {}", updatedPost);
+            return ResponseHandler.responseBuilder("Updated successfully", HttpStatus.ACCEPTED, updatedPost);
+        } catch (Exception e) {
+            logger.info("PostController updateExistingPost() failed request");
+            return ResponseHandler.responseBuilder("Post not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/users/{userId}/posts/{postId}")
     public ResponseEntity<?> deleteExistingPost(@PathVariable Long postId){
-        postService.deletePost(postId);
-        Post post = postService.getPostById(postId);
-        if(post == null)
-
+        try {
+            postService.deletePost(postId);
+            logger.info("PostController deleteExistingPost() successful delete");
             return ResponseHandler.responseBuilder("Successfully deleted post!", HttpStatus.NO_CONTENT);
-        logger.error("PostController deleteExistingPost() fail");
-        return ResponseHandler.responseBuilder("Failed to delete post", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("PostController deleteExistingPost() failed request");
+            return ResponseHandler.responseBuilder("Post not found", HttpStatus.NOT_FOUND);
+        }
     }
+
 
 }
